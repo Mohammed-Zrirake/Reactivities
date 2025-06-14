@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "@tanstack/react-query": "^5.80.6"
+    "@hookform/resolvers": "^5.1.1",
+    "@mui/x-date-pickers": "^8.5.2",
+    "@tanstack/react-query": "^5.80.6",
+    "date-fns": "^4.1.0",
+    "react-hook-form": "^7.57.0",
+    "zod": "^3.25.64"
   }
 }
