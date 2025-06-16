@@ -14,23 +14,16 @@ namespace Persistence
         {
             if (!userManager.Users.Any())
             {
-                var user = new List<User> {
-                    new() { DisplayName = "Bob",UserName = "bob@test.com",Email = "bob@test.com" },
-                    new(){DisplayName="Tom",UserName="Tom@test.com",Email="Tom@test.com"},
-                    new(){DisplayName = "Jane",UserName="Jane@test.com",Email="Jane@test.com"}
+                var users = new List<User> {
+                    new() { DisplayName = "mohammed",UserName = "mohammed@test.com",Email = "mohammed@test.com" },
+                    new(){DisplayName="mehdi",UserName="mehdi@test.com",Email="mehdi@test.com"},
+                    new(){DisplayName = "sara",UserName="sara@test.com",Email="sara@test.com"}
                 };
-                foreach (var item in user)
+                foreach (var user in users)
                 {
-                    await userManager.CreateAsync(item, "Pa$$0rd");
+                    await userManager.CreateAsync(user, "Pa$$0rd");
                 }
             }
-                
-
-
-
-
-
-
 
             if (context.Activities.Any())return;
             var activities = new List<Activity>

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { configure } from "mobx";
 import { store } from "../stores/store";
 
 const sleep = (delay: number) => {
@@ -9,7 +8,8 @@ const sleep = (delay: number) => {
 }
 
 const agent = axios.create({
-    baseURL : import.meta.env.VITE_API_URL
+    baseURL : import.meta.env.VITE_API_URL,
+    withCredentials: true
 });
 
 agent.interceptors.request.use(config => {

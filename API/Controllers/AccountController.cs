@@ -14,9 +14,10 @@ namespace API.Controllers
         {
             var user = new User
             {
-                DisplayName = registerDto.DisplayName,
                 UserName = registerDto.Email,
-                Email = registerDto.Email
+                Email = registerDto.Email,
+                DisplayName = registerDto.DisplayName
+               
             };
             var result = await signInManager.UserManager.CreateAsync(user, registerDto.Password);
             if (result.Succeeded)
@@ -34,15 +35,15 @@ namespace API.Controllers
 
 
         [AllowAnonymous]
-        [HttpGet("userinfo")]
+        [HttpGet("user-info")]
         public async Task<ActionResult> GetUserInfo()
         {
             if (User.Identity?.IsAuthenticated == false) return NoContent();
+
             var user = await signInManager.UserManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+
+            if (user == null) return Unauthorized();
+
             return Ok(new
             {
                 user.DisplayName,
@@ -50,11 +51,10 @@ namespace API.Controllers
                 user.Id,
                 user.ImageUrl
             });
-
         }
 
 
-        [Authorize]
+      
         [HttpPost("logout")]
         public async Task<ActionResult> Logout()
         {
