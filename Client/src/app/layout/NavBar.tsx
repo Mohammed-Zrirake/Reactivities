@@ -7,7 +7,6 @@ import { Observer } from "mobx-react-lite";
 import { useAccounts } from "../../lib/hooks/useAccounts";
 import UserMenu from "./UserMenu";
 
-
 export default function NavBar() {
     const { uiStore } = useStore();
     const { currentUser } = useAccounts();
@@ -46,6 +45,9 @@ export default function NavBar() {
                             <MenuItemLink to='/activities'>
                                 Activities
                             </MenuItemLink>
+                            <MenuItemLink to='/counter'>
+                                Counter
+                            </MenuItemLink>
                             <MenuItemLink to='/errors'>
                                 Errors
                             </MenuItemLink>
@@ -66,5 +68,3 @@ export default function NavBar() {
         </Box>
     )
 }
-
-

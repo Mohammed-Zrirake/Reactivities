@@ -21,6 +21,9 @@ namespace Domain
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
-       
+
+        //navigation props
+        public virtual ICollection<ActivityAttendee> Attendees { get; set; } = [];
+
     }
 }
