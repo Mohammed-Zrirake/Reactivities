@@ -25,5 +25,7 @@ namespace Domain
         //navigation props
         public virtual ICollection<ActivityAttendee> Attendees { get; set; } = [];
 
+        public virtual ICollection<Comment> Comments { get; set; } = [];
+
     }
 }

@@ -2,7 +2,7 @@ import { Box, Typography, Card, CardContent, TextField, Avatar, CircularProgress
 import { Link, useParams } from "react-router";
 import { useComments } from "../../../lib/hooks/useComments";
 import { timeAgo } from "../../../lib/util/util";
-import { FieldValues, useForm } from "react-hook-form";
+import { type FieldValues, useForm } from "react-hook-form";
 import { observer } from "mobx-react-lite";
 
 const ActivityDetailsChat = observer(function ActivityDetailsChat() {

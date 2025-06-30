@@ -1,14 +1,16 @@
 import axios from "axios";
 import { store } from "../stores/store";
+import { toast } from "react-toastify";
+import { router } from "../../app/router/Routes";
 
 const sleep = (delay: number) => {
     return new Promise(resolve => {
-        setTimeout(resolve, delay);
-    })
+        setTimeout(resolve, delay)
+    });
 }
 
 const agent = axios.create({
-    baseURL : import.meta.env.VITE_API_URL,
+    baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true
 });
 
@@ -17,19 +19,50 @@ agent.interceptors.request.use(config => {
     return config;
 })
 
-
-agent.interceptors.response.use(async response => {
-    try {
-        await sleep(1000);
-
+agent.interceptors.response.use(
+    async response => {
+        if (import.meta.env.DEV) await sleep(1000);
+        store.uiStore.isIdle()
         return response;
-    } catch (error) {
-        console.log(error)
+    },
+    async error => {
+        if (import.meta.env.DEV) await sleep(1000);
+        store.uiStore.isIdle();
+
+        const { status, data } = error.response;
+        switch (status) {
+            case 400:
+                if (data.errors) {
+                    const modalStateErrors = [];
+                    for (const key in data.errors) {
+                        if (data.errors[key]) {
+                            modalStateErrors.push(data.errors[key]);
+                        }
+                    }
+                    throw modalStateErrors.flat();
+                } else {
+                    toast.error(data);
+                }
+                break;
+            case 401:
+                if (data.detail === 'NotAllowed') {
+                    throw new Error(data.detail)
+                } else {
+                    toast.error('Unauthorised');
+                }
+                break;
+            case 404:
+                router.navigate('/not-found');
+                break;
+            case 500:
+                router.navigate('/server-error', {state: {error: data}})
+                break;
+            default:
+                break;
+        }
+
         return Promise.reject(error);
     }
-    finally{
-        store.uiStore.isIdle();
-    }
-})
+);
 
-export default agent
+export default agent;

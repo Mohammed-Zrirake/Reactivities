@@ -29,9 +29,7 @@ public class DeletePhoto
 
             var deleteResult = await photoService.DeletePhoto(photo.PublicId);
 
-            if (deleteResult.Error != null)
-                return Result<Unit>.Failure(deleteResult.Error.Message, 400);
-
+    
             user.Photos.Remove(photo);
 
             var result = await context.SaveChangesAsync(cancellationToken) > 0;

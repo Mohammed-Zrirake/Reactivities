@@ -1,4 +1,4 @@
-﻿using Application.Activities.DTO;
+﻿using Application.Activities.DTOs;
 using Application.Core;
 using Application.Interfaces;
 using AutoMapper;
@@ -11,12 +11,12 @@ namespace Application.Activities.Queries;
 
 public class GetActivityList
 {
-    public class Query : IRequest<Result<PagedList<ActivityDto, DateTime?>>>
+    public class Query : IRequest<Result<PagedList<ActivityDto, DateTime?>>> 
     {
         public required ActivityParams Params { get; set; }
     }
 
-    public class Handler(AppDbContext context, IMapper mapper, IUserAccessor userAccessor) :
+    public class Handler(AppDbContext context, IMapper mapper, IUserAccessor userAccessor) : 
         IRequestHandler<Query, Result<PagedList<ActivityDto, DateTime?>>>
     {
         public async Task<Result<PagedList<ActivityDto, DateTime?>>> Handle(Query request, CancellationToken cancellationToken)
@@ -30,22 +30,23 @@ public class GetActivityList
             {
                 query = request.Params.Filter switch
                 {
-                    "isGoing" => query.Where(x =>
+                    "isGoing" => query.Where(x => 
                         x.Attendees.Any(a => a.UserId == userAccessor.GetUserId())),
-                    "isHost" => query.Where(x =>
+                    "isHost" => query.Where(x => 
                         x.Attendees.Any(a => a.IsHost && a.UserId == userAccessor.GetUserId())),
                     _ => query
                 };
             }
 
-            var projectedActivities = query.ProjectTo<ActivityDto>(mapper.ConfigurationProvider,
-                    new { currentUserId = userAccessor.GetUserId() });
+            var projectedActivities = query.ProjectTo<ActivityDto>(mapper.ConfigurationProvider, 
+                    new {currentUserId = userAccessor.GetUserId()});
 
             var activities = await projectedActivities
                 .Take(request.Params.PageSize + 1)
                 .ToListAsync(cancellationToken);
 
             DateTime? nextCursor = null;
+            
             if (activities.Count > request.Params.PageSize)
             {
                 nextCursor = activities.Last().Date;

@@ -1,11 +1,20 @@
-import { format, type DateArg } from "date-fns";
-import {z} from 'zod';
+import { format, formatDistanceToNow, parseISO } from "date-fns";
+import { z } from "zod";
 
 
-export function formatDate(date : DateArg<Date>){
-    return format(date,'dd MMM yyyy h:mm a')
+export function formatDate(dateString: string) {
+  const dateObject = parseISO(dateString);
+  return format(dateObject, "dd MMM yyyy h:mm a");
 }
 
-export const requiredString = (fieldName:string) => 
-    z.string({required_error:`${fieldName} is required` }).min(1,
-    { message: `The ${fieldName} field is required` })
+// Do the same for the timeAgo function.
+export function timeAgo(dateString: string) {
+  const dateObject = parseISO(dateString); 
+  return formatDistanceToNow(dateObject) + " ago";
+}
+
+
+export const requiredString = (fieldName: string) =>
+  z
+    .string({ required_error: `${fieldName} is required` })
+    .min(1, { message: `${fieldName} is required` });

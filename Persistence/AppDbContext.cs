@@ -1,33 +1,64 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Persistence
+namespace Persistence;
+
+public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(options)
 {
-    public class AppDbContext(DbContextOptions options):IdentityDbContext<User>(options)
+    public required DbSet<Activity> Activities { get; set; }
+    public required DbSet<ActivityAttendee> ActivityAttendees { get; set; }
+    public required DbSet<Photo> Photos { get; set; }
+    public required DbSet<Comment> Comments { get; set; }
+    public required DbSet<UserFollowing> UserFollowings { get; set; }
+
+       protected override void OnModelCreating(ModelBuilder builder)
     {
-        public required DbSet<Activity> Activities { get; set; }
-        public required DbSet<ActivityAttendee> ActivityAttendees { get; set; }
+        base.OnModelCreating(builder);
 
-        public required DbSet<Photo> Photos { get; set; }
+        builder.Entity<ActivityAttendee>(x => x.HasKey(a => new { a.ActivityId, a.UserId }));
 
-        override protected void OnModelCreating(ModelBuilder builder)
+        builder.Entity<ActivityAttendee>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Activities)
+            .HasForeignKey(x => x.UserId);
+
+        builder.Entity<ActivityAttendee>()
+            .HasOne(x => x.Activity)
+            .WithMany(x => x.Attendees)
+            .HasForeignKey(x => x.ActivityId);
+
+        builder.Entity<UserFollowing>(x => 
         {
-            base.OnModelCreating(builder);
-            builder.Entity<ActivityAttendee>(x => x.HasKey(aa => new { aa.ActivityId, aa.UserId }));
-            builder.Entity<ActivityAttendee>()
-                .HasOne(u => u.User)
-                .WithMany(a => a.Activities)
-                .HasForeignKey(aa => aa.UserId);
-            builder.Entity<ActivityAttendee>()
-                .HasOne(a => a.Activity)
-                .WithMany(u => u.Attendees)
-                .HasForeignKey(aa => aa.ActivityId);
+            x.HasKey(k => new {k.ObserverId, k.TargetId});
+
+            x.HasOne(o => o.Observer)
+                .WithMany(f => f.Followings)
+                .HasForeignKey(o => o.ObserverId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            x.HasOne(o => o.Target)
+                .WithMany(f => f.Followers)
+                .HasForeignKey(o => o.TargetId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+            v => v.ToUniversalTime(),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+        );
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(dateTimeConverter);
+                }
+            }
         }
     }
 }

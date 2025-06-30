@@ -15,7 +15,7 @@ public class AddPhoto
         public required IFormFile File { get; set; }
     }
 
-    public class Handler(IUserAccessor userAccessor, AppDbContext context,
+    public class Handler(IUserAccessor userAccessor, AppDbContext context, 
         IPhotoService photoService) : IRequestHandler<Command, Result<Photo>>
     {
         public async Task<Result<Photo>> Handle(Command request, CancellationToken cancellationToken)
@@ -23,13 +23,13 @@ public class AddPhoto
             var uploadResult = await photoService.UploadPhoto(request.File);
 
             if (uploadResult == null) return Result<Photo>.Failure("Failed to upload photo", 400);
-            if (uploadResult.Error != null) return Result<Photo>.Failure(uploadResult.Error.Message, 400);
+           
 
             var user = await userAccessor.GetUserAsync();
 
             var photo = new Photo
             {
-                Url = uploadResult.SecureUrl.AbsoluteUri,
+                Url = uploadResult.Url,
                 PublicId = uploadResult.PublicId,
                 UserId = user.Id
             };
@@ -37,7 +37,7 @@ public class AddPhoto
             user.ImageUrl ??= photo.Url;
 
             context.Photos.Add(photo);
-
+            
             var result = await context.SaveChangesAsync(cancellationToken) > 0;
 
             return result
